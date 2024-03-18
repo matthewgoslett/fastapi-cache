@@ -2,20 +2,10 @@ import datetime
 import json
 import pickle  # nosec:B403
 from decimal import Decimal
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Optional,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, overload
 
 import pendulum
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseConfig, ValidationError, fields
 from starlette.responses import JSONResponse
 from starlette.templating import (
     _TemplateResponse as TemplateResponse,  # pyright: ignore[reportPrivateUsage]
@@ -64,13 +54,6 @@ class Coder:
     def decode(cls, value: bytes) -> Any:
         raise NotImplementedError
 
-    # (Shared) cache for endpoint return types to Pydantic model fields.
-    # Note that subclasses share this cache! If a subclass overrides the
-    # decode_as_type method and then stores a different kind of field for a
-    # given type, do make sure that the subclass provides its own class
-    # attribute for this cache.
-    _type_field_cache: ClassVar[Dict[Any, fields.ModelField]] = {}
-
     @overload
     @classmethod
     def decode_as_type(cls, value: bytes, *, type_: _T) -> _T:
@@ -90,17 +73,8 @@ class Coder:
         """
         result = cls.decode(value)
         if type_ is not None:
-            try:
-                field = cls._type_field_cache[type_]
-            except KeyError:
-                field = cls._type_field_cache[type_] = fields.ModelField(
-                    name="body", type_=type_, class_validators=None, model_config=BaseConfig
-                )
-            result, errors = field.validate(result, {}, loc=())
-            if errors is not None:
-                if not isinstance(errors, list):
-                    errors = [errors]
-                raise ValidationError(errors, type_)
+            return type_.model_validate(result)
+
         return result
 
 
