@@ -6,6 +6,8 @@ from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar, Union, over
 
 import pendulum
 from fastapi.encoders import jsonable_encoder
+from pydantic import create_model
+from pydantic._internal._model_construction import ModelMetaclass
 from starlette.responses import JSONResponse
 from starlette.templating import (
     _TemplateResponse as TemplateResponse,  # pyright: ignore[reportPrivateUsage]
@@ -54,6 +56,8 @@ class Coder:
     def decode(cls, value: bytes) -> Any:
         raise NotImplementedError
 
+    _type_field_cache: ClassVar[Dict[Any, ModelMetaclass]] = {}
+
     @overload
     @classmethod
     def decode_as_type(cls, value: bytes, *, type_: _T) -> _T:
@@ -72,8 +76,17 @@ class Coder:
 
         """
         result = cls.decode(value)
+
         if type_ is not None:
-            return type_.model_validate(result)
+            try:
+                ModelField = cls._type_field_cache[type_]
+            except KeyError:
+                ModelField = create_model(
+                    'ModelField', value=(type_, ...)
+                )
+                cls._type_field_cache[type_] = ModelField
+
+            return ModelField(value=result).value
 
         return result
 
