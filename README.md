@@ -4,6 +4,11 @@
 [![license](https://img.shields.io/github/license/long2ice/fastapi-cache)](https://github.com/long2ice/fastapi-cache/blob/main/LICENSE)
 [![CI/CD](https://github.com/long2ice/fastapi-cache/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/long2ice/fastapi-cache/actions/workflows/ci-cd.yml)
 
+## Why fork?
+
+1. We needed to add compatibility with pydantic2. See https://github.com/long2ice/fastapi-cache/issues/249 and https://github.com/long2ice/fastapi-cache/issues/236
+2. They broke typing on the decorator with https://github.com/yoco-tech/fastapi-cache/commit/013be85f97ae696b97d1d348e4f07d19fda86228
+
 ## Introduction
 
 `fastapi-cache` is a tool to cache FastAPI endpoint and function results, with
