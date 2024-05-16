@@ -81,12 +81,11 @@ class Coder:
             try:
                 ModelField = cls._type_field_cache[type_]
             except KeyError:
-                ModelField = create_model(
-                    'ModelField', value=(type_, ...)
-                )
+                ModelField = create_model('ModelField', __annotations__={'value': (type_, ...)})
+
                 cls._type_field_cache[type_] = ModelField
 
-            return ModelField(value=result).value
+            return ModelField.model_construct(value=result).value
 
         return result
 
