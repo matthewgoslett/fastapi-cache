@@ -86,7 +86,11 @@ class Coder:
                 )
                 cls._type_field_cache[type_] = ModelField
 
-            return ModelField(value=result).value
+
+            model_instance = ModelField.model_construct(value=result).value # type: ignore
+
+            print(type(model_instance)) # type: ignore
+            return model_instance # type: ignore
 
         return result
 
