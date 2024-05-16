@@ -86,7 +86,7 @@ class Coder:
                 )
                 cls._type_field_cache[type_] = ModelField
 
-            return ModelField(value=result).value
+            return ModelField.construct(value=result).value # type: ignore
 
         return result
 
